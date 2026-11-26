@@ -1,4 +1,11 @@
-const io = require('socket.io')(3000);
+const http = require('http');
+const socketIo = require('socket.io');
+
+// Create an HTTP server
+const server = http.createServer();
+
+// Attach Socket.io to the server
+const io = socketIo(server);
 
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
@@ -15,4 +22,10 @@ io.on('connection', (socket) => {
         // Save to database or stream to dashboard
         console.log('Phone screen update:', data);
     });
+});
+
+// Start the server on port 3000 (Render uses PORT env variable, but 3000 is safe for testing)
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
